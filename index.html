@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=utf-8 />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+	<title>Weibel Learning - Group Discussion</title>
+	<link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
+	<link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
+	<link href="style.css" rel="stylesheet" />
+	<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
+	<link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.2/handlebars.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.0/lodash.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="http://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+	<script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-spread/1.0.4/cytoscape-spread.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.js"></script>
+	<script src="code.js"></script>
+
+</head>
+<body background="bg.jpg">
+<div class="tool_tip">
+	<p id="tooltip"></p>
+</div>
+<div id="cy">
+	<div id="mod_segs" class="mod_segs"></div>
+</div>
+
+<div id="search-wrapper">
+	<input type="text" class="form-control" id="search" autofocus placeholder="Search Student">
+</div>
+<div id="info"></div>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/4.10.3/bootstrap-slider.min.js"></script>
+<link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/4.10.3/css/bootstrap-slider.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/4.10.3/css/bootstrap-slider.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
+<link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
+
+	<span class="fa fa-bars config-toggle" id="config-toggle"></span>
+	<div id="config" class="config">
+		<div class="preamble">
+			<span class="label label-info">Rational Squabble Trend</span>
+
+			<p>A proof of concept for the group discussion pattern generation tool.</p>
+			<p>
+				<input type="file" id="studentfile">Use .csv, .xls or .txt file</input>
+				Class Website <br/>
+				<select name="course">
+					<option value="2217">Room 2217</option>
+					<option value="3109">Room 3109</option>
+					<option value="3217">Room 3217</option>
+				</select>
+				<select name="layout">
+					<option value="cirlce">Circle</option>
+					<option value="grid">Grid</option>
+				</select></br>
+				<input type="button" id="startgraph" value="Start" class="button"/>
+				<!--<p>Each file load will create a new discussion group</p> -->
+				<input type="button" id="generatepng" value="Stop" class="button"/>
+				<img id = "imagePng"/>
+				<a href="" id="downloadlink" style=""></a>
+			</p>
+		</div>
+      
+	</div>
+ 
+</body>
+</html>

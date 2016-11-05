@@ -1,7 +1,12 @@
-$(function() { //On dom ready
+$(document).ready(function() { //On dom ready
 	var params = {
 	};
 
+	$.ajax({
+		crossDomain:true,
+		type:'GET',
+		url:"http://52.89.152.186:8000/"
+	});
 
 	var infoTemplate = Handlebars.compile([
 		'<p> <img class="info_dp" src="{{pic}}" alt="{{name}}" style="float:;width:75px;height:75px;"></img></p>',
@@ -38,19 +43,19 @@ $(function() { //On dom ready
 			}
 		}, 16 ) ).data('slider');
 	}
-	function removeItem(array, item){
+	function removeIndex(array, index){
 		for(var i in array){
-			if(array[i]==item){
+			if(i == index){
 				array.splice(i,1);
-				console.log("removing item", item);
+				console.log("removing index", i);
 				break;
 			}
 		}
+		return array;
 	}
-	sliders.forEach(makeSlider);
+	//sliders.forEach(makeSlider);
 	var namelist;
-	var moderators = [];
-	var moderatorCount = 3;
+
 	// discussion refers to the entire session
 	//Can hold 3 states 'started', 'suspended', 'stopped'
 	var discussion = 'stopped';
@@ -77,6 +82,21 @@ $(function() { //On dom ready
 		console.log(textFile);
 		return textFile;
 	};
+	var toggle_node = function() {
+		//make node active/inactive
+		console.log("toggling the button");
+		if (discussion == "started") {
+
+			console.log(document.getElementById('startgraph').getAttribute("value"));
+			document.getElementById('startgraph').setAttribute("value","Swap");
+			console.log(document.getElementById('startgraph').getAttribute("value"));
+
+		}else{
+			console.log(document.getElementById('startgraph').getAttribute("value"));
+			document.getElementById('startgraph').setAttribute("value","Start");
+			console.log(document.getElementById('startgraph').getAttribute("value"));
+		}
+	};
 	var cy = cytoscape({
 		container: document.getElementById('cy'),
 		style: cytoscape.stylesheet()
@@ -93,8 +113,12 @@ $(function() { //On dom ready
 				'selectable': true,
 				'grabbable': true,
 				'autolock': false,
-				'min-zoomed-font-size': '10',
-				'text-wrap': 'wrap'
+				//'font-size': 30,
+				'font-color': '#fff',
+				'min-zoomed-font-size': 10,
+				'text-wrap': 'wrap',
+				'color': '#fff'
+
 				})
 			.selector('$node > node')
 			.css({
@@ -109,31 +133,33 @@ $(function() { //On dom ready
 			.selector('edge')
 				.css({
 					'transition-duration': '30s',
-					'line-color': '#222',
-					'width': 5,
+					'line-color': '#fff',
+					'width': 3,
 					'target-arrow-shape': 'triangle',
-					'target-arrow-color': '#222',
+					'target-arrow-color': '#fff',
 					'label': ' data(label)',
-					'color': '#f00',
-					'font-size': '50',
-					//'line-style': 'dotted',
+					'color': '#FFF',
+					'font-size': '20',
+					'line-style': 'dotted',
+					'line-color' : '#fff',
 					'min-zoomed-font-size': '10',
-					'curve-style': 'unbundled-bezier',
-					'control-point-distances': '40 -40',
-					'control-point-weights': '0.25 0.75'
+					'curve-style': 'bezier',
+					'control-point-step-size': 40
+					//'control-point-distances': '40 -40',
+					//'control-point-weights': '0.25 0.75'
 				})
 			.selector('.show_info')
 			.css({
 				'content': 'data(summary)',
 				'color': '#fff',
 				'background-color': '#000',
-				'font-size': '40',
+				'font-size': '50',
 				'font-weight': 'bold',
 				'text-border-color': '#000',
 				'text-border-width': '15',
 				'text-background-opacity': '0.4',
 				'text-background-color': '#000',
-				'font-family': 'Helvetica',
+				'font-family': 'Times New Roman',
 				'text-valign': 'center',
 				'text-halign': 'right',
 				'visibility': 'visible',
@@ -162,8 +188,8 @@ $(function() { //On dom ready
 			//Generate PNG Function Handler
 			document.getElementById("generatepng").addEventListener('click', function() {
 				console.log("Discussion in Handler:", discussion);
-				if (discussion == 'started') {
-					//var jpg =  	cy.jpg();
+				if (discussion == 'started' || discussion == 'swapped') {
+					var png =  	cy.png({'scale':1});
 					//console.log(jpg);
 					var json = cy.json();
 					//write json to a file
@@ -172,10 +198,13 @@ $(function() { //On dom ready
 					var link = document.getElementById("downloadlink");
 					link.innerHTML = "Download";
 					link.href = makeTextFile(JSON.stringify(json));
-					//$('#imagePng').attr('src',png);
+					$('#imagePng').attr('src',png);
 					console.log("Image generated");
 				} else {
 					console.log("Discussion:%s", discussion);
+				}
+				if(discussion == "swapped"){
+					discussion = "stopped";
 				}
 			});
 
@@ -201,80 +230,38 @@ $(function() { //On dom ready
 				}
 			});
 			document.getElementById("startgraph").addEventListener('click', function() {
-				//remove after testing
-				namelist = "Andriana Bethany Beltran Romero,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10705878.jpeg\n" +
-					"Natalie Bernice Odonnell,	http://hci4h.ucsd.edu/data/uploads/student_photos/A09961867.jpeg\n" +
-					"Nirja Jatin Mehta,	http://hci4h.ucsd.edu/data/uploads/student_photos/A53068117.jpeg\n" +
-					"Lovelle Therese Adriano Cardoso,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10794856.jpeg \n"+
-					"Aaron Paul-Amboss Lukas,	http://hci4h.ucsd.edu/data/uploads/student_photos/A09793760.jpeg\n"+
-					"Calvin Xavier Gomez,	http://hci4h.ucsd.edu/data/uploads/student_photos/A53091769.jpeg\n"+
-					"Kenia Janett Duque,	http://hci4h.ucsd.edu/data/uploads/student_photos/A09954987.jpeg\n"+
-					"Rachel Katherine Schneiderman,	http://hci4h.ucsd.edu/data/uploads/student_photos/A97106530.jpeg\n"+
-					"Vignesh Nallur Cheluve Gowda,	http://hci4h.ucsd.edu/data/uploads/student_photos/A53077327.jpeg\n"+
-					"Irfan Haider,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10830216.jpeg\n"+
-					"Sarkis Tarinian,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10603727.jpeg\n"+
-					"Vishwajith Ramesh,	http://hci4h.ucsd.edu/data/uploads/student_photos/A09972444.jpeg\n"+
-					"Aurnik Narim Islam,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10841928.jpeg\n"+
-					"Sainan Liu,	http://hci4h.ucsd.edu/data/uploads/student_photos/A13291871.jpeg\n"+
-					"Bjoernar Moe Remmen,	http://hci4h.ucsd.edu/data/uploads/student_photos/U07179547.jpeg\n"+
-					"Tony Hyo Hui Lee,	http://hci4h.ucsd.edu/data/uploads/student_photos/A09309177.jpeg\n"+
-					"David Perez Thomasson,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10871310.jpeg\n"+
-					"Vincent Chan,	http://hci4h.ucsd.edu/data/uploads/student_photos/A91003195.jpeg\n"+
-					"Jingwen Xu,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10890992.jpeg\n"+
-					"Felix Jesus Rasgo,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10629265.jpeg\n"+
-					"Vincent Anup Kuri,	http://hci4h.ucsd.edu/data/uploads/student_photos/A53078326.jpeg\n"+
-					"Carolyn Christita Thio,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10570444.jpeg\n"+
-					"Hendrik Hannes Holste,	http://hci4h.ucsd.edu/data/uploads/student_photos/A99044591.jpeg\n"+
-					"Sve Thomas, 	http://hci4h.ucsd.edu/data/uploads/student_photos/U07180124.jpeg\n"+
-					"Philip Ngo,	http://hci4h.ucsd.edu/data/uploads/student_photos/A09819429.jpeg\n"+
-					"Rajat Maheshwari,	http://hci4h.ucsd.edu/data/uploads/student_photos/A11138048.jpeg\n"+
-					"Rohit Jha,	http://hci4h.ucsd.edu/data/uploads/student_photos/A53089617.jpeg\n"+
-					"James Edward Medrano Natanauan,	http://hci4h.ucsd.edu/data/uploads/student_photos/A10586589.jpeg";
-				console.log(namelist);
+
 				if (typeof(namelist) == 'undefined') {
 					alert('Wooohooo! Forgot to select Namelist file?!');
 					return;
 				}
-				display_members(namelist);
+				else if(namelist.length == 0){
+					alert("Inner/Outer Circle complete");
+				}else{
+					display_members(namelist);
+				}
 			});
 		}
 
 	});
-	//I am selecting a circular layout for the nodes
-	var options = {
-		name: 'circle',
 
-		fit: true, // whether to fit the viewport to the graph
-		padding: 50, // the padding on fit
-		condense: true,
-		boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-		avoidOverlap: true, // prevents node overlap, may overflow boundingBox and radius if not enough space
-		radius: 4, // the radius of the circle
-		startAngle: 3 / 2 * Math.PI, // where nodes start in radians
-		sweep: undefined, // how many radians should be between the first and last node (defaults to full circle)
-		clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
-		sort: undefined, // a sorting function to order the nodes; e.g. function(a, b){ return a.data('weight') - b.data('weight') }
-		animate: true, // whether to transition the node positions
-		animationDuration: 500, // duration of animation in ms if enabled
-		animationEasing: undefined, // easing of animation if enabled
-		ready: undefined, // callback on layoutready
-		stop: undefined // callback on layoutstop
-	};
-	var options2 = {
+	//I am selecting a circular layout for the nodes
+
+	var grid = {
 		name: 'grid',
 		minDist: 50,
 		animate: true,
 		animationDuration: 500
 	};
-	var options1 = {
+	var circle = {
 		name: 'circle',
 
 		fit: true, // whether to fit the viewport to the graph
-		padding: 50, // the padding on fit
+		padding: 40, // the padding on fit
 		condense: true,
 		boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
 		avoidOverlap: true, // prevents node overlap, may overflow boundingBox and radius if not enough space
-		radius: 3, // the radius of the circle
+		radius: 2, // the radius of the circle
 		startAngle: 3 / 2 * Math.PI, // where nodes start in radians
 		sweep: undefined, //undefined, // how many radians should be between the first and last node (defaults to full circle)
 		clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
@@ -285,35 +272,6 @@ $(function() { //On dom ready
 		ready: undefined, // callback on layoutready
 		stop: undefined // callback on layoutstop
 	};
-
-	/*var options = {
-	   name: 'concentric',
-
-	   fit: true, // whether to fit the viewport to the graph
-	   padding: 30, // the padding on fit
-	   startAngle: 3/2 * Math.PI, // where nodes start in radians
-	   sweep: undefined, // how many radians should be between the first and last node (defaults to full circle)
-	   clockwise: true, // whether the layout should go clockwise (true) or counterclockwise/anticlockwise (false)
-	   equidistant: false, // whether levels have an equal radial distance betwen them, may cause bounding box overflow
-	   minNodeSpacing: 10, // min spacing between outside of nodes (used for radius adjustment)
-	   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-	   avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
-	   height: undefined, // height of layout area (overrides container height)
-	   width: undefined, // width of layout area (overrides container width)
-	   concentric: function(node){ // returns numeric value for each node, placing higher nodes in levels towards the centre
-			var rand = Math.random()*40*4;
-			console.log(rand);
-	   return rand;
-	   },
-	   levelWidth: function(nodes){ // the variation of concentric values in each level
-	   return nodes.maxDegree() / 4;
-	   },
-	   animate: false, // whether to transition the node positions
-	   animationDuration: 500, // duration of animation in ms if enabled
-	   animationEasing: undefined, // easing of animation if enabled
-	   ready: undefined, // callback on layoutready
-	   stop: undefined // callback on layoutstop
-	 };*/
 
 
 	//select event handler
@@ -347,8 +305,11 @@ $(function() { //On dom ready
 			this.data().count = this.data().count + 1;
 			this.data(this.data());
 			//scoring formula
-			if (this.data().count > 5 || this.data().duration == 60) {
+
+			if (this.data().count > 10 || this.data().duration == 60) {
 				this.addClass('best');
+			}else if( this.data().count > 5 || this.data().duration == 30){
+				this.addClass('good');
 			}
 			prev = this;
 			prevd = curd;
@@ -402,83 +363,73 @@ $(function() { //On dom ready
 	function hideNodeInfo(){
 		$('#info').hide();
 	}
+	var panLayoutReturn = function(cur_pan){
+		var custom_pan = {'x': 0, 'y': 0}
+		var i;
+		console.log("Panning through the room")
+		for(i =0; i< 4; i++) {
+			//pan all the four corners
+			if (i != 2) {
+
+				custom_pan.x += 50;
+			} else {
+				custom_pan.x = 0
+				custom_pan.y = 50;
+			}
+		}
+		return cur_pan;
+	}
 	var display_members = function(namelist) {
+
 		//read the group file and store
-		if (discussion == 'stopped') {
-			discussion = 'started';
-			console.log("Inside Display members Discussion=", discussion)
-			console.log("Namelist %s", namelist);
-			namelist = namelist.split('\n');
-			namelist = shuffle(namelist);
-			//This will store in namelist comma separated arrays of Name and image
-			console.log("After Split %s", namelist[0]);
-			var index = 0;
-			var class_size = namelist.length //Math.ceil(namelist.length/2);
-			console.log("Number of students in first session =%d", class_size);
-			var second_session = namelist.length - class_size;
-			while (index < class_size) {
-				var stud = {
-					id: index,
-					name: namelist[index].split(',')[0],
-					pic: namelist[index].split(',')[1]
-				}
-				console.log("Student Name: %s, Student picture: %s", stud.name, stud.pic);
-				add_student(stud.id, stud.name, stud.pic);
-				index++;
+		console.log("Inside Display members Discussion=", discussion)
+		console.log("Namelist %s", namelist);
+		if(namelist == "undefined"){
+			alert("Session Complete");
+			return;
+		}
+		namelist = namelist.split('\n');
+		namelist = shuffle(namelist);
+
+		//This will store in namelist comma separated arrays of Name and image
+		console.log("After Split %s", namelist[0]);
+		var index = 0;
+		var group_size
+
+		if(discussion = "stopped"){
+			discussion = "started";
+			group_size = Math.floor(namelist.length/2);
+		}
+		else{
+			group_size = namelist;
+			document.getElementById(generatePng).click();
+			cy.destroy();
+		}
+		console.log(group_size);
+		console.log("Number of students in this session =%d", group_size);
+		//var second_session = namelist.length - class_size;
+		var toRemove = []
+		while (index < group_size) {
+			console.log(group_size);
+			var stud = {
+				id: index,
+				name: namelist[index].split(',')[0],
+				pic: namelist[index].split(',')[1]
+
 			}
-
-			//Moderator Selection Phase
-			cy.fit();
-			var eles = cy.nodes();
- 			var layout = cy.makeLayout({name:'grid', minDist: 50});
-			layout.run();
-			$('#tooltip').innerHTML = 'Select '+ moderatorCount+ ' moderators. Before we could start';
-			//register for moderator handlers
-			var mod_handler = function(event){
-				var node = this;
-				moderatorCount--;
-				$('#tooltip').innerHTML = 'Select '+ moderatorCount+ 'more moderators. Before we could start';
-				moderators.push(node);
-				eles = eles.difference(node);
-				if(moderatorCount == 0){
-					layout.stop();
-					//rewrite moderators to node types
-					moderators = cy.nodes().difference(eles);
-					console.log("E1 Length:", eles.length);
-					console.log("Moderators Length:",moderators.length);
-					var divider = Math.floor(namelist.length/2);
-					var eles1 = eles.filter('[id > 12]');
-					var eles2 = eles.difference(eles1);
-					eles1.layout(options);
-					eles2.layout(options);
-					bounding_box = cy.extent();
-					console.log("Eles1 Length:", eles1.length);
-					console.log("Eles2 Length:", eles2.length);
-					console.log("Bounding Box:",bounding_box);
-					options2.boundingBox = {h: 100,
-											w: 100,
-											x1: 1578,
-											x2: 1678,
-											y1: 1204,
-											y2: 1304};
-					moderators.layout(options2);
-					//moderators.lock();
-					//cy.centre();
-					cy.fit();
-					cy.off('select', mod_handler);
-					cy.on('select', 'node', mapping_handler);
-				}
-			}
-
-			//'select' event handler swap
-			cy.off('select', mapping_handler);
-			cy.on('select','node', mod_handler);
-
-			//$('#tooltip').innerHTML = "Select " + moderatorCount + " moderators";
-			//$("#startgraph").tooltip({effect:'slide'});
-
+			add_student(stud.id, stud.name, stud.pic);
+			toRemove.push(index);
+			index++;
 
 		}
+
+		for(var i in toRemove){
+			//Remove the elements that are added to the session
+			namelist  =  removeIndex(namelist, toRemove[i]);
+		}
+		console.log("Size of the name list" + namelist.length, "discussion = " +discussion);
+		cy.layout(circle);
+
 	};
 
 	cy.on('mouseover', 'node', function(e){
@@ -556,8 +507,6 @@ $(function() { //On dom ready
 	$('#search').typeahead().on('typeahead:change', function(event, suggestion, flag, name){
 		console.log("Change Event triggered");
 	});
-	//display_members('groupa.txt', 'stopped');
-	var toggle_node = function(element) {
-		//make node active/inactive
-	}
+
+
 });

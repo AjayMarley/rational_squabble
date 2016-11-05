@@ -1,0 +1,11 @@
+Nikola Tesla,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Albert Einstein,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Ludwig Van Beethoven,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Lenardo da Vinci,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Srinivasa Ramanujan,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Galileo Galilei,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Isaac Newton,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Charles Darwin,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Alan Turing,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Ada lovelace,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPG
+Charles Babbag,https://upload.wikimedia.org/wikipedia/commons/d/d4/N.Tesla.JPGe
