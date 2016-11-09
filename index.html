@@ -38,6 +38,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/4.10.3/bootstrap-slider.min.js"></script>
+<script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
 <link href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.min.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/4.10.3/css/bootstrap-slider.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -52,23 +53,22 @@
 		<div class="preamble">
 			<span class="label label-info">Rational Squabble Trend</span>
 
-			<p>A proof of concept for the group discussion pattern generation tool.</p>
+			<p>A group discussion pattern generation tool.</p>
 			<p>
 				<input type="file" id="studentfile">Use .csv, .xls or .txt file</input>
-				Class Website <br/>
-				<select name="course">
+				<a href="http://ubicomp.ucsd.edu/cse118-218/">Course Page</a>
+				<select name="Group">
 					<option value="2217">Room 2217</option>
 					<option value="3109">Room 3109</option>
 					<option value="3217">Room 3217</option>
 				</select>
 				<select name="layout">
 					<option value="cirlce">Circle</option>
-					<option value="grid">Grid</option>
 				</select></br>
 				<input type="button" id="startgraph" value="Start" class="button"/>
 				<!--<p>Each file load will create a new discussion group</p> -->
 				<input type="button" id="generatepng" value="Stop" class="button"/>
-				<img id = "imagePng"/>
+				<a href="" id="imagePng" style=""></a>
 				<a href="" id="downloadlink" style=""></a>
 			</p>
 		</div>

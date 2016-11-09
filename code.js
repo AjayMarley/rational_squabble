@@ -44,29 +44,46 @@ $(document).ready(function() { //On dom ready
 	}
 
 	var namelist;
-	var total = 0;
 	var prev = -1;
 	var prevd = new Date();
 	var curd = new Date();
 	var edge_id = -1;
 	var textFile = null;
-	var $config =$('#config');
+	var imgFile = null;
 
-	var makeTextFile = function(text) {
+	//http://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+	var b64toBlob = function(b64Data, contentType, sliceSize) {
+		contentType = contentType || '';
+		sliceSize = sliceSize || 512;
+
+		var byteCharacters = atob(b64Data);
+		var byteArrays = [];
+
+		for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+			var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+			var byteNumbers = new Array(slice.length);
+			for (var i = 0; i < slice.length; i++) {
+				byteNumbers[i] = slice.charCodeAt(i);
+			}
+
+			var byteArray = new Uint8Array(byteNumbers);
+
+			byteArrays.push(byteArray);
+		}
+
+		var blob = new Blob(byteArrays, {type: contentType});
+		return blob;
+	}
+	var makeSessionFiles = function(text, png) {
 		var data = new Blob([text], {
 			type: 'text/plain'
 		});
-
-		// If we are replacing a previously generated file we need to
-		// manually revoke the object URL to avoid memory leaks.
-		if (textFile !== null) {
-			window.URL.revokeObjectURL(textFile);
-		}
-
-		textFile = window.URL.createObjectURL(data);
-		console.log(textFile);
-		return textFile;
+		var image = b64toBlob(png,'image/png');
+		//saveAs(data, "Session_"+new Date()+"_.txt");
+		saveAs(image, "Session_" + new Date() + "_.png");
 	};
+
 
 	var cy = cytoscape({
 		container: document.getElementById('cy'),
@@ -158,25 +175,11 @@ $(document).ready(function() { //On dom ready
 		ready: function() {
 			//Generate PNG Function Handler
 			document.getElementById("generatepng").addEventListener('click', function() {
-				console.log("Discussion in Handler:", discussion);
-				if (discussion == 'started' || discussion == 'swapped') {
-					var png =  	cy.png({'scale':1});
-					//console.log(jpg);
-					var json = cy.json();
-					//write json to a file
-					console.log("Writing to File");
-					console.log(json);
-					var link = document.getElementById("downloadlink");
-					link.innerHTML = "Download";
-					link.href = makeTextFile(JSON.stringify(json));
-					$('#imagePng').attr('src',png);
-					console.log("Image generated");
-				} else {
-					console.log("Discussion:%s", discussion);
-				}
-				if(discussion == "swapped"){
-					discussion = "stopped";
-				}
+				var png =  	cy.png({'scale':1});
+				var json = cy.json();
+				//write session information to files
+				makeSessionFiles(JSON.stringify(json), png);
+				console.log("Image generated");
 			});
 
 			//Read the student file Function handler
@@ -185,9 +188,7 @@ $(document).ready(function() { //On dom ready
 				if (this.files[0] != null) {
 					var fr = new FileReader();
 					fr.onload = function() {
-						namelist = this.result;
-						console.log(typeof(namelist));
-
+						namelist = this.result.split('\n');
 					}
 					var mimetype = this.files[0].type;
 					if (mimetype == 'text/plain') {
@@ -207,8 +208,13 @@ $(document).ready(function() { //On dom ready
 					return;
 				}
 				else if(namelist.length == 0){
-					alert("Inner/Outer Circle complete");
+					alert("Inner & Outer Circle complete");
 				}else{
+					prev = -1;
+					prevd = new Date();
+					curd = new Date();
+					edge_id = -1;
+					console.log("Start Button handler:Namelist Length=" + namelist.length);
 					display_members(namelist);
 				}
 			});
@@ -349,14 +355,14 @@ $(document).ready(function() { //On dom ready
 		}
 		return cur_pan;
 	}
-	var display_members = function(namelist) {
+	function display_members(namelist) {
 
 		if(namelist.length == 0){
 			alert("Session Complete");
 			return;
 		}
 
-		namelist = namelist.split('\n');
+
 		console.log("Before\n" + namelist);
 		shuffle(namelist);
 		console.log("After\n" + namelist);
@@ -372,17 +378,19 @@ $(document).ready(function() { //On dom ready
 		}
 
 		cy.elements().remove();
-		console.log("Number of students this session:" + group_size);
+		console.log("Session Size:" + group_size);
 		while (index < group_size) {
 			var student_info = namelist.shift().split(', ');
+			console.log("Namelist Size:" + namelist.length);
 			var stud = {
 				id: index,
 				name: student_info[0],
 				pic: student_info[1]
 
 			}
-			console.log(stud.name + " " + stud.pic);
-			add_student(stud.id, stud.name, stud.pic);
+			if (stud.name != undefined && stud.pic != undefined){
+				add_student(stud.id, stud.name, stud.pic);
+			}
 			index++;
 		}
 		console.log("Size of the name list" + namelist.length);
@@ -461,6 +469,10 @@ $(document).ready(function() { //On dom ready
 		var n = cy.getElementById(entry.id);
 		showNodeInfo( n );
 	});
+	$(window).bind('beforeunload', function(){
+		return 'Have you saved the graphs?';
+	});
+
      //Remove the previously shown elements
 	$('#search').typeahead().on('typeahead:change', function(event, suggestion, flag, name){
 		console.log("Change Event triggered");
