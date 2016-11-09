@@ -4,8 +4,7 @@ $(document).ready(function() { //On dom ready
 
 	$.ajax({
 		crossDomain:true,
-		type:'GET',
-		url:"http://52.89.152.186:8000/"
+		type:'GET'
 	});
 
 	var infoTemplate = Handlebars.compile([
@@ -43,22 +42,8 @@ $(document).ready(function() { //On dom ready
 			}
 		}, 16 ) ).data('slider');
 	}
-	function removeIndex(array, index){
-		for(var i in array){
-			if(i == index){
-				array.splice(i,1);
-				console.log("removing index", i);
-				break;
-			}
-		}
-		return array;
-	}
-	//sliders.forEach(makeSlider);
-	var namelist;
 
-	// discussion refers to the entire session
-	//Can hold 3 states 'started', 'suspended', 'stopped'
-	var discussion = 'stopped';
+	var namelist;
 	var total = 0;
 	var prev = -1;
 	var prevd = new Date();
@@ -82,21 +67,7 @@ $(document).ready(function() { //On dom ready
 		console.log(textFile);
 		return textFile;
 	};
-	var toggle_node = function() {
-		//make node active/inactive
-		console.log("toggling the button");
-		if (discussion == "started") {
 
-			console.log(document.getElementById('startgraph').getAttribute("value"));
-			document.getElementById('startgraph').setAttribute("value","Swap");
-			console.log(document.getElementById('startgraph').getAttribute("value"));
-
-		}else{
-			console.log(document.getElementById('startgraph').getAttribute("value"));
-			document.getElementById('startgraph').setAttribute("value","Start");
-			console.log(document.getElementById('startgraph').getAttribute("value"));
-		}
-	};
 	var cy = cytoscape({
 		container: document.getElementById('cy'),
 		style: cytoscape.stylesheet()
@@ -352,7 +323,6 @@ $(document).ready(function() { //On dom ready
 			array[m] = array[i];
 			array[i] = t;
 		}
-		return array;
 	}
 
 
@@ -381,53 +351,41 @@ $(document).ready(function() { //On dom ready
 	}
 	var display_members = function(namelist) {
 
-		//read the group file and store
-		console.log("Inside Display members Discussion=", discussion)
-		console.log("Namelist %s", namelist);
-		if(namelist == "undefined"){
+		if(namelist.length == 0){
 			alert("Session Complete");
 			return;
 		}
+
 		namelist = namelist.split('\n');
-		namelist = shuffle(namelist);
+		console.log("Before\n" + namelist);
+		shuffle(namelist);
+		console.log("After\n" + namelist);
 
-		//This will store in namelist comma separated arrays of Name and image
-		console.log("After Split %s", namelist[0]);
 		var index = 0;
-		var group_size
+		var group_size = 0;
 
-		if(discussion = "stopped"){
-			discussion = "started";
+		if(namelist.length >9){
 			group_size = Math.floor(namelist.length/2);
 		}
 		else{
-			group_size = namelist;
-			document.getElementById(generatePng).click();
-			cy.destroy();
+			group_size = namelist.length;
 		}
-		console.log(group_size);
-		console.log("Number of students in this session =%d", group_size);
-		//var second_session = namelist.length - class_size;
-		var toRemove = []
+
+		cy.elements().remove();
+		console.log("Number of students this session:" + group_size);
 		while (index < group_size) {
-			console.log(group_size);
+			var student_info = namelist.shift().split(', ');
 			var stud = {
 				id: index,
-				name: namelist[index].split(',')[0],
-				pic: namelist[index].split(',')[1]
+				name: student_info[0],
+				pic: student_info[1]
 
 			}
+			console.log(stud.name + " " + stud.pic);
 			add_student(stud.id, stud.name, stud.pic);
-			toRemove.push(index);
 			index++;
-
 		}
-
-		for(var i in toRemove){
-			//Remove the elements that are added to the session
-			namelist  =  removeIndex(namelist, toRemove[i]);
-		}
-		console.log("Size of the name list" + namelist.length, "discussion = " +discussion);
+		console.log("Size of the name list" + namelist.length);
 		cy.layout(circle);
 
 	};
