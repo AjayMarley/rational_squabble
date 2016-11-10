@@ -44,6 +44,7 @@ $(document).ready(function() { //On dom ready
 	}
 
 	var namelist;
+	var studentCount = 0;
 	var prev = -1;
 	var prevd = new Date();
 	var curd = new Date();
@@ -53,10 +54,12 @@ $(document).ready(function() { //On dom ready
 
 	//http://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
 	var b64toBlob = function(b64Data, contentType, sliceSize) {
+		b64Data = b64Data.split(',');
+		console.log(b64Data[0]);
 		contentType = contentType || '';
 		sliceSize = sliceSize || 512;
 
-		var byteCharacters = atob(b64Data);
+		var byteCharacters = atob(b64Data[1]);
 		var byteArrays = [];
 
 		for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
@@ -75,13 +78,14 @@ $(document).ready(function() { //On dom ready
 		var blob = new Blob(byteArrays, {type: contentType});
 		return blob;
 	}
-	var makeSessionFiles = function(text, png) {
+	var makeSessionFiles = function(text, png64) {
 		var data = new Blob([text], {
 			type: 'text/plain'
 		});
-		var image = b64toBlob(png,'image/png');
-		//saveAs(data, "Session_"+new Date()+"_.txt");
-		saveAs(image, "Session_" + new Date() + "_.png");
+		var image_blob = b64toBlob(png64,'image/png');
+		var session_suffix = new Date().getDate();
+		saveAs(data, "Session_"+session_suffix+"_.json");
+		saveAs(image_blob, "Session_" + session_suffix + "_.png");
 	};
 
 
@@ -99,7 +103,7 @@ $(document).ready(function() { //On dom ready
 				'content' :'data(name)',
 				'background-image': 'data(pic)',
 				'selectable': true,
-				'grabbable': true,
+				'grabbable': false,
 				'autolock': false,
 				//'font-size': 30,
 				'font-color': '#fff',
@@ -136,28 +140,12 @@ $(document).ready(function() { //On dom ready
 					//'control-point-distances': '40 -40',
 					//'control-point-weights': '0.25 0.75'
 				})
-			.selector('.show_info')
-			.css({
-				'content': 'data(summary)',
-				'color': '#fff',
-				'background-color': '#000',
-				'font-size': '50',
-				'font-weight': 'bold',
-				'text-border-color': '#000',
-				'text-border-width': '15',
-				'text-background-opacity': '0.4',
-				'text-background-color': '#000',
-				'font-family': 'Times New Roman',
-				'text-valign': 'center',
-				'text-halign': 'right',
-				'visibility': 'visible',
-				'text-border-opacity': '0.7'
-
-			})
 			.selector('.best')
 			.css({
-				'border-width': 15,
+				'border-width': 12,
 				'border-color': '#0F0',
+				'height': 200,
+				'width': 200
 			})
 			.selector('.good')
 			.css({
@@ -175,7 +163,7 @@ $(document).ready(function() { //On dom ready
 		ready: function() {
 			//Generate PNG Function Handler
 			document.getElementById("generatepng").addEventListener('click', function() {
-				var png =  	cy.png({'scale':1});
+				var png =  	cy.png({'scale':2, 'bg':'ddd'});
 				var json = cy.json();
 				//write session information to files
 				makeSessionFiles(JSON.stringify(json), png);
@@ -189,6 +177,7 @@ $(document).ready(function() { //On dom ready
 					var fr = new FileReader();
 					fr.onload = function() {
 						namelist = this.result.split('\n');
+						studentCount = namelist.length;
 					}
 					var mimetype = this.files[0].type;
 					if (mimetype == 'text/plain') {
@@ -200,6 +189,10 @@ $(document).ready(function() { //On dom ready
 				} else {
 					console.log("No file selected");
 				}
+			});
+			//To allow selecting the same file again
+			document.getElementById("studentfile").addEventListener('click', function() {
+				this.files[0] = null;
 			});
 			document.getElementById("startgraph").addEventListener('click', function() {
 
@@ -215,6 +208,11 @@ $(document).ready(function() { //On dom ready
 					curd = new Date();
 					edge_id = -1;
 					console.log("Start Button handler:Namelist Length=" + namelist.length);
+					if($("startgraph").innerHTML == "Start"){
+						$("startgraph").innerHTML = "Swap";
+					}else{
+						$("startgraph").innerHTML = "Start";
+					}
 					display_members(namelist);
 				}
 			});
@@ -257,17 +255,23 @@ $(document).ready(function() { //On dom ready
 		if (prev == -1) {
 			prevd = new Date();
 			console.log("First Click" + this.data().name);
-			// highlight(node);
-			this.data().summary = this.data().name + '\n C: ' + ++this.data().count + '\n D: ' + this.data().duration + ' secs';
-			this.data(this.data())
-			prev = this;
+			console.log(this.data().frequency);
 			//scoring formula
+			this.data().frequency = 1;
 			this.addClass('good');
-			console.log(this.id);
+			prev = this;
 		} else {
 			curd = new Date();
-			prev.data().duration += Math.round((curd.getTime() - prevd.getTime()) / 1000);
+			if(prev.data().duration != undefined){
+				prev.data().duration += Math.round((curd.getTime() - prevd.getTime()) / 1000);
+			}else{
+				prev.data().duration = Math.round((curd.getTime() - prevd.getTime()) / 1000);
+			}
+			++this.data().frequency;
+
 			console.log("Adding edges between" + prev.data().name + " and " + this.data().name);
+			console.log(this.data.name + "spoke for" +this.data().duration + "secs");
+			console.log(this.data.name + "spoke for" +this.data().frequency + "times")
 			cy.add({
 				group: 'edges',
 				data: {
@@ -276,20 +280,20 @@ $(document).ready(function() { //On dom ready
 					target: this.id(),
 					label: edge_id
 				}
-			})
-			prev.data().summary = prev.data().name + '\n C: ' + prev.data().count + '\n D: ' + prev.data().duration + ' secs';
-			prev.data(prev.data());
-			this.data().count = this.data().count + 1;
-			this.data(this.data());
+			});
 			//scoring formula
-
-			if (this.data().count > 10 || this.data().duration == 60) {
+			if (this.data().frequency > 10 || this.data().duration == 60) {
+				this.removeClass('good');
 				this.addClass('best');
-			}else if( this.data().count > 5 || this.data().duration == 30){
+				this.data().score = 2;
+
+			}else if( this.data().frequency > 5 || this.data().duration == 30){
 				this.addClass('good');
+				this.data().score = 1;
 			}
 			prev = this;
 			prevd = curd;
+
 		}
 	};
 	cy.on('select', 'node', mapping_handler);
@@ -309,7 +313,7 @@ $(document).ready(function() { //On dom ready
 				"selected": false,
 				"selectable": true,
 				"locked": false,
-				"grabbable": true
+				"grabbable": false
 			}
 		});
 	};
@@ -331,7 +335,6 @@ $(document).ready(function() { //On dom ready
 		}
 	}
 
-
 	//Show Student Information
 	function showNodeInfo( node ){
 		$('#info').html( infoTemplate( node.data() ) ).show();
@@ -339,39 +342,21 @@ $(document).ready(function() { //On dom ready
 	function hideNodeInfo(){
 		$('#info').hide();
 	}
-	var panLayoutReturn = function(cur_pan){
-		var custom_pan = {'x': 0, 'y': 0}
-		var i;
-		console.log("Panning through the room")
-		for(i =0; i< 4; i++) {
-			//pan all the four corners
-			if (i != 2) {
-
-				custom_pan.x += 50;
-			} else {
-				custom_pan.x = 0
-				custom_pan.y = 50;
-			}
-		}
-		return cur_pan;
-	}
 	function display_members(namelist) {
 
-		if(namelist.length == 0){
+		if(namelist.length == 0) {
 			alert("Session Complete");
 			return;
 		}
 
-
-		console.log("Before\n" + namelist);
-		shuffle(namelist);
-		console.log("After\n" + namelist);
-
 		var index = 0;
 		var group_size = 0;
 
-		if(namelist.length >9){
-			group_size = Math.floor(namelist.length/2);
+		console.log("Shuffle for different circle dynamics\n" + namelist);
+		shuffle(namelist);
+
+		if(namelist.length >studentCount/2){
+			group_size = Math.ceil(namelist.length/2);
 		}
 		else{
 			group_size = namelist.length;
