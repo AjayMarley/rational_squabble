@@ -8,7 +8,7 @@ $(document).ready(function() { //On dom ready
 	});
 
 	var infoTemplate = Handlebars.compile([
-		'<p> <img class="info_dp" src="{{pic}}" alt="{{name}}" style="float:;width:75px;height:75px;"></img></p>',
+		'<p> <img class="info_dp" src="{{pic}}" alt="{{name}}" style="float:;width:75px;height:75px;"/></p>',
 		'<p class="ac-name"><i class="fa fa-info-circle"></i>{{name}}</p>',
 		'<p class="ac-duration"><i class="fa fa-clock-o"></i> {{duration}} secs</p>',
 		'<p class="ac-frequency"><i class="fa fa-star"></i>{{frequency}} times</p>',
@@ -23,26 +23,6 @@ $(document).ready(function() { //On dom ready
 			max: 15
 		}
 	];
-	function makeSlider( opts ){
-		var $input = $('<input></input>');
-		var $param = $('<div class="param"></div>');
-
-		$param.append('<span class="label label-default">'+ opts.label +'</span>');
-		$param.append( $input );
-
-		$('#config').append( $param );
-
-		var p = $input.slider({
-			min: opts.min,
-			max: opts.max,
-			value: params[ opts.param ]
-		}).on('slide', _.throttle( function(){
-			if(discussion != 'started') {
-				moderatorCount = p.getValue();
-			}
-		}, 16 ) ).data('slider');
-	}
-
 	var namelist;
 	var studentCount = 0;
 	var prev = -1;
@@ -144,13 +124,24 @@ $(document).ready(function() { //On dom ready
 			.css({
 				'border-width': 12,
 				'border-color': '#0F0',
-				'height': 200,
-				'width': 200
+				'shape': 'pentagon'
+
+			})
+			.selector('.better')
+			.css({
+				'border-width': 12,
+				'border-color': '#0F0',
+				'shape': 'star'
 			})
 			.selector('.good')
 			.css({
 				'border-width': 10,
 				'border-color': '#FF0'
+			})
+			.selector('.first')
+			.css({
+				'border-width': 10,
+				'border-color': '#0FF'
 			}),
 		elements: {
 
@@ -194,6 +185,16 @@ $(document).ready(function() { //On dom ready
 			document.getElementById("studentfile").addEventListener('click', function() {
 				this.files[0] = null;
 			});
+			document.getElementById("enable").addEventListener('click', function(){
+				if(this.value == "Disable"){
+					this.value = "Enable";
+					cy.off('select');
+				}
+				else{
+					this.value = "Disable";
+					cy.on('select', 'node', mapping_handler);
+				}
+			});
 			document.getElementById("startgraph").addEventListener('click', function() {
 
 				if (typeof(namelist) == 'undefined') {
@@ -208,17 +209,20 @@ $(document).ready(function() { //On dom ready
 					curd = new Date();
 					edge_id = -1;
 					console.log("Start Button handler:Namelist Length=" + namelist.length);
-					if($("startgraph").innerHTML == "Start"){
-						$("startgraph").innerHTML = "Swap";
+					console.log(this.value);
+					if(this.value == "Start"){
+						this.value = "Swap";
 					}else{
-						$("startgraph").innerHTML = "Start";
+						this.value = "Start";
 					}
+					console.log(this.value);
 					display_members(namelist);
 				}
 			});
 		}
 
 	});
+
 
 	//I am selecting a circular layout for the nodes
 
@@ -258,7 +262,7 @@ $(document).ready(function() { //On dom ready
 			console.log(this.data().frequency);
 			//scoring formula
 			this.data().frequency = 1;
-			this.addClass('good');
+			this.addClass('first');
 			prev = this;
 		} else {
 			curd = new Date();
@@ -282,12 +286,17 @@ $(document).ready(function() { //On dom ready
 				}
 			});
 			//scoring formula
-			if (this.data().frequency > 10 || this.data().duration == 60) {
-				this.removeClass('good');
+			if (this.data().frequency > =8 || this.data().duration == 90) {
+				this.removeClass('better');
 				this.addClass('best');
-				this.data().score = 2;
+				this.data().score = 1;
 
-			}else if( this.data().frequency > 5 || this.data().duration == 30){
+			}
+			else if( this.data().frequency >= 5 || this.data().duration == 60){
+				this.removeClass('good');
+				this.addClass('better');
+				this.data().score = 1;
+			}else if( this.data().frequency >= 3 || this.data().duration == 30){
 				this.addClass('good');
 				this.data().score = 1;
 			}
@@ -296,8 +305,8 @@ $(document).ready(function() { //On dom ready
 
 		}
 	};
-	cy.on('select', 'node', mapping_handler);
-	//Node addition    
+
+	//Node addition
 	var add_student = function(id, name, pic) {
 		cy.add({
 			group: 'nodes',
@@ -307,7 +316,7 @@ $(document).ready(function() { //On dom ready
 				'frequency': 0,
 				'pic': pic,
 				'duration':0, //duration in secs
-				'score':0, //total 10 points
+				'score':0, //total 1 points
 				'parent':'',
 				"removed": false,
 				"selected": false,
